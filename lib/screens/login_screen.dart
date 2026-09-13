@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // ==============================
   void _handlePhoneLogin() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Gọi API đăng nhập bằng SĐT & Mật khẩu
+      
 
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Đăng nhập thành công!')));
@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // Xử lý đăng nhập Google
   // ==============================
   void _handleGoogleLogin() {
-    // TODO: Gọi hàm GoogleSignIn().signIn()
+    
 
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Đăng nhập bằng Google')));
@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // LỚP PHỦ MỜ
           // ==========================================
           child: Container(
-            color: Colors.white.withOpacity(0.85),
+           color: Colors.white.withValues(alpha: 0.85),
 
             child: SafeArea(
               child: SingleChildScrollView(
@@ -228,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Xử lý quên mật khẩu
+                               
                               },
                               child: const Text('Quên mật khẩu?'),
                             ),
