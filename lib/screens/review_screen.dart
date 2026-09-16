@@ -1,720 +1,248 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ReviewScreen extends StatefulWidget {
-  const ReviewScreen({super.key});
+  final int bookingId;
+  final int userId;
+  final String courtName;
+
+  const ReviewScreen({
+    super.key,
+    required this.bookingId,
+    required this.userId,
+    required this.courtName,
+  });
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  static const Color primaryColor = Color(0xFF6C4ED9);
-  static const Color backgroundColor = Color(0xFFF7F7FB);
-  static const Color textColor = Color(0xFF25232A);
-  static const Color greyText = Color(0xFF7A7780);
-  static const Color borderColor = Color(0xFFE5E3E8);
-
   int _rating = 0;
+  final TextEditingController _commentController = TextEditingController();
 
-  final TextEditingController _reviewController =
-      TextEditingController();
-
-  final ImagePicker _imagePicker = ImagePicker();
-
-  final List<Uint8List> _reviewImages = [];
-
-  String get ratingText {
-    switch (_rating) {
-      case 1:
-        return 'Rất tệ';
-      case 2:
-        return 'Không hài lòng';
-      case 3:
-        return 'Bình thường';
-      case 4:
-        return 'Tốt';
-      case 5:
-        return 'Tuyệt vời';
-      default:
-        return 'Chọn số sao';
+  // Danh sách lưu các đánh giá (Frontend State)
+  final List<Map<String, dynamic>> _reviewsList = [
+    {
+      'userName': 'Nguyễn Văn Định',
+      'rating': 5,
+      'comment': 'Sân đẹp, hệ thống đèn rất sáng và nhân viên nhiệt tình!',
+      'date': '16/09/2026',
     }
-  }
-
-  Future<void> _pickImages() async {
-    final List<XFile> pickedImages =
-        await _imagePicker.pickMultiImage();
-
-    if (pickedImages.isEmpty) {
-      return;
-    }
-
-    final int remaining =
-        3 - _reviewImages.length;
-
-    if (remaining <= 0) {
-      return;
-    }
-
-    final imagesToAdd =
-        pickedImages.take(remaining);
-
-    for (final image in imagesToAdd) {
-      final Uint8List bytes =
-          await image.readAsBytes();
-
-      _reviewImages.add(bytes);
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-
-    if (pickedImages.length > remaining &&
-        mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Bạn chỉ có thể thêm tối đa 3 ảnh',
-          ),
-        ),
-      );
-    }
-  }
-
-  void _removeImage(int index) {
-    setState(() {
-      _reviewImages.removeAt(index);
-    });
-  }
+  ];
 
   void _submitReview() {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Vui lòng chọn số sao đánh giá',
-          ),
+          content: Text('Vui lòng chọn số sao trước khi gửi!'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    if (_reviewController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Vui lòng nhập nhận xét của bạn',
-          ),
-        ),
-      );
-      return;
-    }
+    // TODO: Gọi API Backend tại đây (e.g., await ApiService.postReview(...))
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          icon: const Icon(
-            Icons.check_circle,
-            color: Colors.green,
-            size: 58,
-          ),
-          title: const Text(
-            'Cảm ơn bạn!',
-            textAlign: TextAlign.center,
-          ),
-          content: Text(
-            'Bạn đã gửi đánh giá $_rating sao thành công.',
-            textAlign: TextAlign.center,
-          ),
-          actionsAlignment:
-              MainAxisAlignment.center,
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
+    // Cập nhật danh sách hiển thị trên Frontend
+    setState(() {
+      _reviewsList.insert(0, {
+        'userName': 'Bạn (Khách hàng)',
+        'rating': _rating,
+        'comment': _commentController.text.trim().isEmpty
+            ? 'Không có nhận xét chi tiết.'
+            : _commentController.text.trim(),
+        'date': '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+      });
 
-                setState(() {
-                  _rating = 0;
-                  _reviewController.clear();
-                  _reviewImages.clear();
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text(
-                'Đóng',
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+      // Reset form
+      _rating = 0;
+      _commentController.clear();
+    });
 
-  Widget _buildStars() {
-    return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.center,
-      children: List.generate(
-        5,
-        (index) {
-          final int starNumber =
-              index + 1;
-
-          return InkWell(
-            onTap: () {
-              setState(() {
-                _rating = starNumber;
-              });
-            },
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 6,
-              ),
-              child: Icon(
-                starNumber <= _rating
-                    ? Icons.star
-                    : Icons.star_border,
-                color: Colors.amber,
-                size: 46,
-              ),
-            ),
-          );
-        },
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã gửi đánh giá thành công!'),
+        backgroundColor: Color(0xFF00A86B),
       ),
     );
-  }
-
-  Widget _buildImagePicker() {
-    return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Thêm ảnh',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
-        const SizedBox(height: 5),
-
-        const Text(
-          'Bạn có thể thêm tối đa 3 ảnh',
-          style: TextStyle(
-            fontSize: 13,
-            color: greyText,
-          ),
-        ),
-
-        const SizedBox(height: 14),
-
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            if (_reviewImages.length < 3)
-              InkWell(
-                onTap: _pickImages,
-                borderRadius:
-                    BorderRadius.circular(14),
-                child: Container(
-                  width: 110,
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color:
-                        const Color(0xFFFBFBFD),
-                    borderRadius:
-                        BorderRadius.circular(14),
-                    border: Border.all(
-                      color: borderColor,
-                    ),
-                  ),
-                  child: const Column(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons
-                            .add_a_photo_outlined,
-                        color: primaryColor,
-                        size: 34,
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Thêm ảnh',
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontWeight:
-                              FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            ...List.generate(
-              _reviewImages.length,
-              (index) {
-                return Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(14),
-                      child: Image.memory(
-                        _reviewImages[index],
-                        width: 110,
-                        height: 110,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: InkWell(
-                        onTap: () {
-                          _removeImage(index);
-                        },
-                        child: Container(
-                          width: 26,
-                          height: 26,
-                          decoration:
-                              const BoxDecoration(
-                            color:
-                                Color(0xCC25232A),
-                            shape:
-                                BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 17,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _reviewCard({
-    required String initials,
-    required String name,
-    required int stars,
-    required String date,
-    required String comment,
-  }) {
-    return Container(
-      margin:
-          const EdgeInsets.only(bottom: 14),
-      padding:
-          const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(16),
-        border: Border.all(
-          color: borderColor,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor:
-                    const Color(0xFFF2EFFF),
-                child: Text(
-                  initials,
-                  style: const TextStyle(
-                    color: primaryColor,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontWeight:
-                            FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children:
-                          List.generate(
-                        5,
-                        (index) {
-                          return Icon(
-                            index < stars
-                                ? Icons.star
-                                : Icons
-                                    .star_border,
-                            color:
-                                Colors.amber,
-                            size: 19,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Text(
-                date,
-                style: const TextStyle(
-                  color: greyText,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Text(
-            comment,
-            style: const TextStyle(
-              color: textColor,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _reviewController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
-
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        backgroundColor: backgroundColor,
-        elevation: 0,
-        centerTitle: true,
+        title: const Text('Đánh giá sân', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: textColor,
-          ),
-        ),
-        title: const Text(
-          'Đánh giá sân',
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding:
-              const EdgeInsets.all(20),
-          child: Center(
-            child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(
-                maxWidth: 650,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Thẻ thông tin sân
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.stretch,
+              child: Row(
                 children: [
-                  // THÔNG TIN SÂN
                   Container(
-                    padding:
-                        const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(
-                        18,
-                      ),
-                      border: Border.all(
-                        color: borderColor,
-                      ),
+                      color: const Color(0xFF6C5CE7).withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                    child: const Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 32,
-                          backgroundColor:
-                              primaryColor,
-                          child: Icon(
-                            Icons.sports_tennis,
-                            color: Colors.white,
-                            size: 31,
-                          ),
-                        ),
-
-                        SizedBox(width: 16),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-                            children: [
-                              Text(
-                                'Sport Center ABC',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight:
-                                      FontWeight
-                                          .bold,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                'Cầu lông - Sân 3',
-                                style: TextStyle(
-                                  color: greyText,
-                                  fontSize: 15,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                '15/09/2026 • 18:00 - 20:00',
-                                style: TextStyle(
-                                  color: greyText,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    child: const Icon(Icons.sports_tennis, color: Color(0xFF6C5CE7)),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // FORM ĐÁNH GIÁ
-                  Container(
-                    padding:
-                        const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(
-                        18,
-                      ),
-                      border: Border.all(
-                        color: borderColor,
-                      ),
-                    ),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Bạn thấy địa điểm này thế nào?',
-                          textAlign:
-                              TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight:
-                                FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 18),
-
-                        _buildStars(),
-
-                        const SizedBox(height: 8),
-
-                        Text(
-                          ratingText,
-                          textAlign:
-                              TextAlign.center,
-                          style: TextStyle(
-                            color: _rating == 0
-                                ? greyText
-                                : primaryColor,
-                            fontWeight:
-                                FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        const Text(
-                          'Chia sẻ trải nghiệm của bạn',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight:
-                                FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        TextFormField(
-                          controller:
-                              _reviewController,
-                          minLines: 4,
-                          maxLines: 6,
-                          maxLength: 500,
-                          keyboardType:
-                              TextInputType
-                                  .multiline,
-                          decoration:
-                              InputDecoration(
-                            hintText:
-                                'Viết nhận xét về sân...',
-                            filled: true,
-                            fillColor:
-                                const Color(
-                              0xFFFBFBFD,
-                            ),
-                            contentPadding:
-                                const EdgeInsets.all(
-                              16,
-                            ),
-                            enabledBorder:
-                                OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(14),
-                              borderSide:
-                                  const BorderSide(
-                                color:
-                                    borderColor,
-                              ),
-                            ),
-                            focusedBorder:
-                                OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(14),
-                              borderSide:
-                                  const BorderSide(
-                                color:
-                                    primaryColor,
-                                width: 1.8,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        _buildImagePicker(),
-
-                        const SizedBox(height: 24),
-
-                        SizedBox(
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed:
-                                _submitReview,
-                            style:
-                                ElevatedButton
-                                    .styleFrom(
-                              backgroundColor:
-                                  primaryColor,
-                              foregroundColor:
-                                  Colors.white,
-                              shape:
-                                  RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius
-                                        .circular(14),
-                              ),
-                            ),
-                            child: const Text(
-                              'Gửi đánh giá',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight:
-                                    FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
+                        Text(widget.courtName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text('Mã đơn hàng: #${widget.bookingId}', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 30),
-
-                  const Text(
-                    'Đánh giá của người dùng',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  _reviewCard(
-                    initials: 'NA',
-                    name: 'Nguyễn Minh Anh',
-                    stars: 5,
-                    date: '12/09/2026',
-                    comment:
-                        'Sân sạch sẽ, nhân viên nhiệt tình. Mình sẽ quay lại.',
-                  ),
-
-                  _reviewCard(
-                    initials: 'TB',
-                    name: 'Trần Quốc Bảo',
-                    stars: 4,
-                    date: '05/09/2026',
-                    comment:
-                        'Sân khá tốt, giá hợp lý và dễ tìm.',
-                  ),
-
-                  const SizedBox(height: 30),
                 ],
               ),
             ),
-          ),
+            const SizedBox(height: 16),
+
+            // Form đánh giá
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  const Text('Trải nghiệm của bạn thế nào?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final starValue = index + 1;
+                      return IconButton(
+                        icon: Icon(
+                          starValue <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                          color: starValue <= _rating ? Colors.amber : Colors.grey[400],
+                          size: 36,
+                        ),
+                        onPressed: () => setState(() => _rating = starValue),
+                      );
+                    }),
+                  ),
+                  Text(
+                    _rating == 0 ? 'Vui lòng chọn số sao' : '$_rating trên 5 sao',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _commentController,
+                    maxLines: 4,
+                    maxLength: 500,
+                    decoration: InputDecoration(
+                      hintText: 'Chất lượng mặt sân, hệ thống đèn, thái độ phục vụ...',
+                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _submitReview,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C5CE7),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Gửi đánh giá', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Phần hiển thị danh sách đánh giá ở dưới
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text('Đánh giá gần đây', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
+                      child: Text('${_reviewsList.length}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _reviewsList.length,
+                  itemBuilder: (context, index) {
+                    final review = _reviewsList[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(review['userName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                              Text(review['date'], style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: List.generate(
+                              5,
+                              (i) => Icon(
+                                i < review['rating'] ? Icons.star_rounded : Icons.star_outline_rounded,
+                                color: Colors.amber,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(review['comment'], style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

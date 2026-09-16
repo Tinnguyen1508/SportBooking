@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final int bookingId;
+  final double amount;
+  final String bookingCode;
+
+  const PaymentScreen({
+    super.key,
+    this.bookingId = 1,
+    this.amount = 300000.0,
+    this.bookingCode = 'BK99212',
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -14,64 +23,38 @@ class _PaymentScreenState extends State<PaymentScreen> {
   static const Color greyText = Color(0xFF7A7780);
   static const Color borderColor = Color(0xFFE5E3E8);
 
-  // bank = chuyển khoản
-  // cash = tiền mặt
-  String _paymentMethod = 'bank';
+  String _paymentMethod = 'VIETQR';
 
-  // Dữ liệu giả frontend
-  final int totalBill = 300000;
-
-  // Thông tin ngân hàng
-  final String bankName = 'MB Bank';
-  final String bankAccount = '123456789';
-  final String accountName = 'SPORT BOOKING';
-  final String transferContent = 'BOOK001';
-
-  // Cọc 30%
-  int get depositAmount {
-    return (totalBill * 0.30).round();
-  }
-
-  // Còn lại 70%
-  int get remainingAmount {
-    return totalBill - depositAmount;
-  }
-
-  String formatMoney(int value) {
-    final text = value.toString();
-    final buffer = StringBuffer();
-
-    for (int i = 0; i < text.length; i++) {
-      if (i > 0 && (text.length - i) % 3 == 0) {
-        buffer.write('.');
-      }
-
-      buffer.write(text[i]);
+  // Tự động chuyển đổi ảnh QR tương ứng với phương thức thanh toán
+  String get _qrImagePath {
+    if (_paymentMethod == 'MOMO') {
+      return 'assets/images/momo_qr.png';
     }
+    return 'assets/images/my_qr.png';
+  }
 
-    return '${buffer.toString()}đ';
+  String formatMoney(double value) {
+    return '${value.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}đ';
   }
 
   void _handleConfirm() {
+    final paymentData = {
+      'booking_id': widget.bookingId,
+      'amount': widget.amount,
+      'payment_method': _paymentMethod,
+      'status': _paymentMethod == 'CASH' ? 'PENDING' : 'SUCCESS',
+    };
+
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          icon: const Icon(
-            Icons.check_circle,
-            color: Colors.green,
-            size: 58,
-          ),
-          title: Text(
-            _paymentMethod == 'bank'
-                ? 'Đã ghi nhận chuyển khoản'
-                : 'Xác nhận thanh toán',
-            textAlign: TextAlign.center,
-          ),
+          icon: const Icon(Icons.check_circle, color: Colors.green, size: 58),
+          title: const Text('Ghi nhận thanh toán', textAlign: TextAlign.center),
           content: Text(
-            _paymentMethod == 'bank'
-                ? 'Frontend đã ghi nhận yêu cầu chuyển khoản của bạn.'
-                : 'Bạn sẽ thanh toán ${formatMoney(remainingAmount)} bằng tiền mặt tại sân.',
+            _paymentMethod == 'CASH'
+                ? 'Bạn sẽ thanh toán ${formatMoney(widget.amount)} bằng tiền mặt tại sân.'
+                : 'Hệ thống đang xác nhận giao dịch chuyển khoản cho đơn ${widget.bookingCode}.',
             textAlign: TextAlign.center,
           ),
           actionsAlignment: MainAxisAlignment.center,
@@ -79,12 +62,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
+                Navigator.pop(context, paymentData);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Đóng'),
+              child: const Text('Hoàn tất'),
             ),
           ],
         );
@@ -101,11 +85,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final bool selected = _paymentMethod == value;
 
     return InkWell(
-      onTap: () {
-        setState(() {
-          _paymentMethod = value;
-        });
-      },
+      onTap: () => setState(() => _paymentMethod = value),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -127,39 +107,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 color: const Color(0xFFF2EFFF),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(
-                icon,
-                color: primaryColor,
-              ),
+              child: Icon(icon, color: primaryColor),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  ),
+                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: textColor)),
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: greyText,
-                    ),
-                  ),
+                  Text(subtitle, style: const TextStyle(fontSize: 13, color: greyText)),
                 ],
               ),
             ),
             Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_off,
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
               color: selected ? primaryColor : Colors.grey,
             ),
           ],
@@ -168,33 +130,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _infoRow(
-    String title,
-    String value, {
-    bool highlight = false,
-    Color? valueColor,
-  }) {
+  Widget _infoRow(String title, String value, {bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: greyText,
-                fontSize: 14,
-              ),
-            ),
-          ),
+          Expanded(child: Text(title, style: const TextStyle(color: greyText, fontSize: 14))),
           Text(
             value,
             style: TextStyle(
-              fontSize: highlight ? 18 : 15,
-              fontWeight:
-                  highlight ? FontWeight.bold : FontWeight.w600,
-              color: valueColor ??
-                  (highlight ? primaryColor : textColor),
+              fontSize: highlight ? 17 : 15,
+              fontWeight: highlight ? FontWeight.bold : FontWeight.w600,
+              color: highlight ? primaryColor : textColor,
             ),
           ),
         ],
@@ -206,289 +153,127 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: textColor,
-          ),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: textColor),
         ),
-        title: const Text(
-          'Thanh toán',
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Thanh toán', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
       ),
-
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 600,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // =========================================
-                  // CHI TIẾT THANH TOÁN
-                  // =========================================
-                  const Text(
-                    'Chi tiết thanh toán',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: borderColor,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        _infoRow(
-                          'Tổng bill',
-                          formatMoney(totalBill),
-                        ),
-
-                        _infoRow(
-                          'Đã cọc (30%)',
-                          '-${formatMoney(depositAmount)}',
-                          valueColor: Colors.green,
-                        ),
-
-                        const Divider(height: 30),
-
-                        _infoRow(
-                          'Còn phải thanh toán',
-                          formatMoney(remainingAmount),
-                          highlight: true,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // =========================================
-                  // PHƯƠNG THỨC
-                  // =========================================
-                  const Text(
-                    'Phương thức thanh toán',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: textColor,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  _paymentOption(
-                    value: 'bank',
-                    title: 'Chuyển khoản ngân hàng',
-                    subtitle: 'Quét mã QR để thanh toán',
-                    icon: Icons.account_balance_outlined,
-                  ),
-
-                  _paymentOption(
-                    value: 'cash',
-                    title: 'Tiền mặt',
-                    subtitle: 'Thanh toán trực tiếp khi đến sân',
-                    icon: Icons.payments_outlined,
-                  ),
-
-                  // =========================================
-                  // QR
-                  // =========================================
-                  if (_paymentMethod == 'bank') ...[
-                    const SizedBox(height: 10),
-
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: borderColor,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Quét QR để thanh toán',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          Container(
-                            width: 220,
-                            height: 220,
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: borderColor,
-                              ),
-                            ),
-                            child: Image.asset(
-                              'assets/images/qr_payment.png',
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          _infoRow(
-                            'Ngân hàng',
-                            bankName,
-                          ),
-
-                          _infoRow(
-                            'Số tài khoản',
-                            bankAccount,
-                          ),
-
-                          _infoRow(
-                            'Chủ tài khoản',
-                            accountName,
-                          ),
-
-                          _infoRow(
-                            'Số tiền',
-                            formatMoney(remainingAmount),
-                            highlight: true,
-                          ),
-
-                          _infoRow(
-                            'Nội dung',
-                            transferContent,
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFF7E6),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Text(
-                              'Vui lòng chuyển đúng số tiền và nội dung.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF8A6116),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Column(
+                  children: [
+                    _infoRow('Mã đơn hàng', widget.bookingCode),
+                    const Divider(height: 20),
+                    _infoRow('Tổng tiền thanh toán', formatMoney(widget.amount), highlight: true),
                   ],
-
-                  // =========================================
-                  // TIỀN MẶT
-                  // =========================================
-                  if (_paymentMethod == 'cash') ...[
-                    const SizedBox(height: 10),
-
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: borderColor,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.payments_outlined,
-                            color: primaryColor,
-                            size: 50,
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          const Text(
-                            'Thanh toán tại sân',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          Text(
-                            'Bạn sẽ thanh toán ${formatMoney(remainingAmount)} khi đến sân.',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: greyText,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _handleConfirm,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: Text(
-                        _paymentMethod == 'bank'
-                            ? 'Tôi đã chuyển khoản'
-                            : 'Xác nhận thanh toán tiền mặt',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-                ],
+                ),
               ),
-            ),
+
+              const SizedBox(height: 24),
+
+              const Text('Phương thức thanh toán', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
+              const SizedBox(height: 14),
+
+              _paymentOption(
+                value: 'VIETQR',
+                title: 'Thanh toán VietQR',
+                subtitle: 'Quét mã QR Ngân hàng',
+                icon: Icons.qr_code_2,
+              ),
+              _paymentOption(
+                value: 'MOMO',
+                title: 'Ví MoMo',
+                subtitle: 'Quét mã QR Ví MoMo',
+                icon: Icons.account_balance_wallet_outlined,
+              ),
+              _paymentOption(
+                value: 'CASH',
+                title: 'Tiền mặt',
+                subtitle: 'Thanh toán trực tiếp khi đến sân',
+                icon: Icons.payments_outlined,
+              ),
+
+              const SizedBox(height: 16),
+
+              if (_paymentMethod == 'VIETQR' || _paymentMethod == 'MOMO') ...[
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Quét mã QR để thanh toán ($_paymentMethod)',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          _qrImagePath,
+                          width: 260,
+                          height: 260,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              color: const Color(0xFFF2EFFF),
+                              child: Center(
+                                child: Text(
+                                  'Không thể tải file $_qrImagePath\nVui lòng kiểm tra file ảnh trong assets.',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      _infoRow('Nội dung chuyển khoản', widget.bookingCode),
+                    ],
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              SizedBox(
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _handleConfirm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                  child: Text(
+                    _paymentMethod == 'CASH' ? 'Xác nhận thanh toán tiền mặt' : 'Tôi đã chuyển khoản',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
