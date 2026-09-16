@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // Import các màn hình Chủ sân
 import 'owner/owner_dashboard_screen.dart';
 import 'owner/owner_manager.dart';
+import 'owner/owner_shop.dart'; // Import màn hình Bán hàng tại quầy & Kho
 
 import 'screens/login_screen.dart';
 import 'screens/payment_screen.dart';
@@ -33,8 +34,8 @@ class MyApp extends StatelessWidget {
       title: 'Đặt sân thể thao',
       scrollBehavior: AppScrollBehavior(), // Kích hoạt thao tác kéo chuột mượt mà
 
-      // Mở trực tiếp màn hình Quản lý sân
-      home: const OwnerManagerScreen(),
+      // Mở trực tiếp màn hình Bán hàng tại quầy để demo
+      home: const OwnerShopScreen(),
 
       // Danh sách các đường dẫn (routes)
       routes: {
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         '/review': (context) => const ReviewScreen(),
         '/owner-dashboard': (context) => const OwnerDashboardScreen(),
         '/owner-manager': (context) => const OwnerManagerScreen(),
+        '/owner-shop': (context) => const OwnerShopScreen(), // Route màn hình Bán hàng
       },
     );
   }
