@@ -10,7 +10,7 @@ class ServiceModel {
   final String unit; // Đơn vị tính
   final String imagePath; // Ảnh từ assets
   int stockQuantity; // Số lượng tồn kho
-  int soldQuantity; // Số lượng đã bán (Giả lập)
+  int soldQuantity; // Số lượng đã bán
   bool isActive; // Trạng thái kinh doanh
 
   ServiceModel({
@@ -113,12 +113,179 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
     });
   }
 
+  // Mở Hộp thoại Chọn Phương thức Thanh toán
   void _checkout() {
     if (cart.isEmpty) {
       _showSnackBar('Giỏ hàng trống!', isError: true);
       return;
     }
 
+    String selectedMethod = 'cash'; // Mặc định chọn Tiền mặt ('cash' hoặc 'qr')
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Row(
+                children: [
+                  Icon(Icons.payments, color: Color(0xFF0D5C40)),
+                  SizedBox(width: 8),
+                  Text('Xác nhận thanh toán', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0D5C40).withAlpha(15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Tổng tiền thanh toán:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text(
+                              _formatPrice(_calculateTotal()),
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0D5C40)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text('Hình thức thanh toán:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // TÙY CHỌN 1: TIỀN MẶT
+                      Card(
+                        elevation: 0,
+                        color: selectedMethod == 'cash' ? Colors.green[50] : Colors.grey[100],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(
+                            color: selectedMethod == 'cash' ? const Color(0xFF0D5C40) : Colors.grey[300]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: RadioListTile<String>(
+                          value: 'cash',
+                          groupValue: selectedMethod,
+                          activeColor: const Color(0xFF0D5C40),
+                          title: const Text('Tiền mặt tại quầy', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: const Text('Thu tiền trực tiếp từ khách hàng'),
+                          secondary: const Icon(Icons.money, color: Colors.green),
+                          onChanged: (value) => setDialogState(() => selectedMethod = value!),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // TÙY CHỌN 2: CHUYỂN KHOẢN QR
+                      Card(
+                        elevation: 0,
+                        color: selectedMethod == 'qr' ? Colors.green[50] : Colors.grey[100],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(
+                            color: selectedMethod == 'qr' ? const Color(0xFF0D5C40) : Colors.grey[300]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: RadioListTile<String>(
+                          value: 'qr',
+                          groupValue: selectedMethod,
+                          activeColor: const Color(0xFF0D5C40),
+                          title: const Text('Chuyển khoản qua QR', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: const Text('Quét mã QR ngân hàng/Momo'),
+                          secondary: const Icon(Icons.qr_code_2, color: Colors.blue),
+                          onChanged: (value) => setDialogState(() => selectedMethod = value!),
+                        ),
+                      ),
+
+                      // HIỂN THỊ MÃ QR KHI CHỌN CHUYỂN KHOẢN
+                      if (selectedMethod == 'qr') ...[
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const Text('Quét mã bên dưới để thanh toán:', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                        const SizedBox(height: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            decoration: BoxDecoration(border: Border.all(color: Colors.grey[300]!)),
+                            child: Image.asset(
+                              'assets/images/qr_payment.png',
+                              height: 220,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/qr_payment.jpg',
+                                  height: 220,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, e, s) => Container(
+                                    height: 180,
+                                    width: 180,
+                                    color: Colors.grey[200],
+                                    child: const Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.qr_code_scanner, size: 50, color: Colors.grey),
+                                        SizedBox(height: 8),
+                                        Text('Không tìm thấy ảnh qr_payment', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy bỏ', style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0D5C40),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _processPaymentSuccess(
+                      selectedMethod == 'cash' ? 'Tiền mặt' : 'Chuyển khoản QR',
+                    );
+                  },
+                  child: Text(
+                    selectedMethod == 'cash' ? 'Xác nhận thanh toán' : 'Xác nhận đã nhận tiền',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Cập nhật tồn kho & thông báo sau khi hoàn tất thanh toán
+  void _processPaymentSuccess(String method) {
     setState(() {
       cart.forEach((serviceId, quantity) {
         final item = servicesList.firstWhere((element) => element.id == serviceId);
@@ -128,7 +295,10 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
       cart.clear();
     });
 
-    _showSnackBar('Thanh toán thành công! Đã cập nhật tồn kho & số lượng bán.', isError: false);
+    _showSnackBar(
+      'Thanh toán ($method) thành công! Đã cập nhật tồn kho & số lượng bán.',
+      isError: false,
+    );
   }
 
   double _calculateTotal() {
@@ -145,7 +315,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
       SnackBar(
         content: Text(msg),
         backgroundColor: isError ? Colors.red[700] : Colors.green[700],
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -185,7 +355,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 1.25,
+                        childAspectRatio: 1.4,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
@@ -326,25 +496,22 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // CỘT HÌNH ẢNH
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 item.imagePath,
-                width: 75,
-                height: 75,
+                width: 70,
+                height: 70,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 75,
-                  height: 75,
+                  width: 70,
+                  height: 70,
                   color: Colors.grey[200],
                   child: const Icon(Icons.image_not_supported, color: Colors.grey),
                 ),
               ),
             ),
             const SizedBox(width: 10),
-
-            // CỘT THÔNG TIN MẶT HÀNG (Ánh xạ từ CSDL)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +526,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                   const SizedBox(height: 2),
                   Text(
                     'Giá bán: ${_formatPrice(item.price)} / ${item.unit}',
-                    style: const TextStyle(color: Color(0xFF0D5C40), fontWeight: FontWeight.bold, fontSize: 13),
+                    style: const TextStyle(color: Color(0xFF0D5C40), fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                   Text(
                     'Giá vốn: ${_formatPrice(item.costPrice)}',
@@ -367,7 +534,8 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                   ),
                   const SizedBox(height: 4),
                   Wrap(
-                    spacing: 8,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -378,7 +546,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                         ),
                         child: Text(
                           'Đã bán: ${item.soldQuantity}',
-                          style: TextStyle(fontSize: 11, color: Colors.blue[800], fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 10, color: Colors.blue[800], fontWeight: FontWeight.bold),
                         ),
                       ),
                       Container(
@@ -391,7 +559,7 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                         child: Text(
                           'Tồn kho: ${item.stockQuantity}',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             color: item.stockQuantity > 0 ? Colors.green[800] : Colors.red[800],
                             fontWeight: FontWeight.bold,
                           ),
@@ -402,8 +570,6 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
                 ],
               ),
             ),
-
-            // NÚT CHỌN MUA
             IconButton(
               icon: const Icon(Icons.add_shopping_cart, color: Color(0xFF0D5C40)),
               onPressed: () => _addToCart(item),
@@ -414,13 +580,8 @@ class _OwnerShopScreenState extends State<OwnerShopScreen> {
     );
   }
 
+  // Phương thức định dạng tiền tệ đơn giản chuẩn Dart
   String _formatPrice(double amount) {
-    return '${amount.toStringAsFixed(0).replaceAllRegExp(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), r'$1.')} đ';
-  }
-}
-
-extension StringRegExtension on String {
-  String replaceAllRegExp(RegExp regex, String replacement) {
-    return replaceAllMapped(regex, (match) => '${match[1]}.');
+    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} đ';
   }
 }
