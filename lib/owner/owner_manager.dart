@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 class AppScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
 }
 
 class OwnerManagerScreen extends StatefulWidget {
@@ -31,12 +31,41 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
 
   // Khung giờ từ 06:00 đến 23:00 (Mỗi ô 30 phút)
   final List<String> timeSlots = [
-    '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
-    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
-    '18:00', '18:30', '19:00', '19:30', '20:00', '20:30',
-    '21:00', '21:30', '22:00', '22:30', '23:00',
+    '06:00',
+    '06:30',
+    '07:00',
+    '07:30',
+    '08:00',
+    '08:30',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00',
+    '18:30',
+    '19:00',
+    '19:30',
+    '20:00',
+    '20:30',
+    '21:00',
+    '21:30',
+    '22:00',
+    '22:30',
+    '23:00',
   ];
 
   // Dữ liệu giả lập slot sân
@@ -51,18 +80,74 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
   void _initMockData() {
     mockBookings = {
       // Sân 1: 06:00 - 06:30 & 17:00 - 18:00
-      '0_0': _createMockBooking('BK-99101', '06:00', '06:30', 'PAID', name: 'Lê Văn C', phone: '0901112233'),
-      '0_22': _createMockBooking('BK-99212', '17:00', '17:30', 'PAID', name: 'Nguyễn Văn A', phone: '0912345678'),
-      '0_23': _createMockBooking('BK-99212', '17:30', '18:00', 'PAID', name: 'Nguyễn Văn A', phone: '0912345678'),
+      '0_0': _createMockBooking(
+        'BK-99101',
+        '06:00',
+        '06:30',
+        'PAID',
+        name: 'Lê Văn C',
+        phone: '0901112233',
+      ),
+      '0_22': _createMockBooking(
+        'BK-99212',
+        '17:00',
+        '17:30',
+        'PAID',
+        name: 'Nguyễn Văn A',
+        phone: '0912345678',
+      ),
+      '0_23': _createMockBooking(
+        'BK-99212',
+        '17:30',
+        '18:00',
+        'PAID',
+        name: 'Nguyễn Văn A',
+        phone: '0912345678',
+      ),
 
       // Sân 2: 17:30 - 19:00
-      '1_23': _createMockBooking('BK-99215', '17:30', '18:00', 'CHECKED_IN', name: 'Trần Thị B', phone: '0987654321'),
-      '1_24': _createMockBooking('BK-99215', '18:00', '18:30', 'CHECKED_IN', name: 'Trần Thị B', phone: '0987654321'),
+      '1_23': _createMockBooking(
+        'BK-99215',
+        '17:30',
+        '18:00',
+        'CHECKED_IN',
+        name: 'Trần Thị B',
+        phone: '0987654321',
+      ),
+      '1_24': _createMockBooking(
+        'BK-99215',
+        '18:00',
+        '18:30',
+        'CHECKED_IN',
+        name: 'Trần Thị B',
+        phone: '0987654321',
+      ),
 
       // Sân 3: 08:00 - 09:00 & 21:00 - 22:00
-      '2_4': _createMockBooking('BK-99100', '08:00', '08:30', 'PAID', name: 'Lê Văn C', phone: '0901112233'),
-      '2_5': _createMockBooking('BK-99100', '08:30', '09:00', 'PAID', name: 'Lê Văn C', phone: '0901112233'),
-      '2_30': _createMockBooking('BK-99401', '21:00', '21:30', 'PAID', name: 'Phạm Hoàng D', phone: '0933445566'),
+      '2_4': _createMockBooking(
+        'BK-99100',
+        '08:00',
+        '08:30',
+        'PAID',
+        name: 'Lê Văn C',
+        phone: '0901112233',
+      ),
+      '2_5': _createMockBooking(
+        'BK-99100',
+        '08:30',
+        '09:00',
+        'PAID',
+        name: 'Lê Văn C',
+        phone: '0901112233',
+      ),
+      '2_30': _createMockBooking(
+        'BK-99401',
+        '21:00',
+        '21:30',
+        'PAID',
+        name: 'Phạm Hoàng D',
+        phone: '0933445566',
+      ),
     };
   }
 
@@ -142,8 +227,12 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     const double headerRowHeight = 40.0;
-                    double calculatedRowHeight = (constraints.maxHeight - headerRowHeight) / courts.length;
-                    double cellHeight = calculatedRowHeight > 55 ? calculatedRowHeight : 55;
+                    double calculatedRowHeight =
+                        (constraints.maxHeight - headerRowHeight) /
+                        courts.length;
+                    double cellHeight = calculatedRowHeight > 55
+                        ? calculatedRowHeight
+                        : 55;
 
                     return SingleChildScrollView(
                       scrollDirection: Axis.vertical,
@@ -161,25 +250,31 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                                   height: headerRowHeight,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
-                                    border: Border.all(color: Colors.grey[300]!),
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                    ),
                                   ),
                                 ),
-                                ...timeSlots.map((time) => Container(
-                                      width: 75,
-                                      height: headerRowHeight,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        border: Border.all(color: Colors.grey[300]!),
+                                ...timeSlots.map(
+                                  (time) => Container(
+                                    width: 75,
+                                    height: headerRowHeight,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
                                       ),
-                                      child: Text(
-                                        time,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    ),
+                                    child: Text(
+                                      time,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    )),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
 
@@ -193,7 +288,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       color: Colors.grey[100],
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border: Border.all(
+                                        color: Colors.grey[300]!,
+                                      ),
                                     ),
                                     child: Text(
                                       courts[courtIndex],
@@ -203,10 +300,15 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                                       ),
                                     ),
                                   ),
-                                  ...List.generate(timeSlots.length, (timeIndex) {
+                                  ...List.generate(timeSlots.length, (
+                                    timeIndex,
+                                  ) {
                                     String key = '${courtIndex}_$timeIndex';
-                                    bool isBooked = mockBookings.containsKey(key);
-                                    Map<String, dynamic>? bookingData = mockBookings[key];
+                                    bool isBooked = mockBookings.containsKey(
+                                      key,
+                                    );
+                                    Map<String, dynamic>? bookingData =
+                                        mockBookings[key];
 
                                     return InkWell(
                                       onTap: () => _showSlotDetails(
@@ -225,15 +327,19 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                                           color: isBooked
                                               ? const Color(0xFFF87171)
                                               : Colors.white,
-                                          border: Border.all(color: Colors.grey[300]!),
+                                          border: Border.all(
+                                            color: Colors.grey[300]!,
+                                          ),
                                         ),
                                         child: isBooked
                                             ? Center(
                                                 child: Text(
-                                                  bookingData?['customer_name'] ?? 'Đã đặt',
+                                                  bookingData?['customer_name'] ??
+                                                      'Đã đặt',
                                                   textAlign: TextAlign.center,
                                                   maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 11,
@@ -293,9 +399,14 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
         bool isBooked = booking != null;
 
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           titlePadding: const EdgeInsets.all(16),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
           title: Row(
             children: [
               Icon(
@@ -306,7 +417,10 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
               Expanded(
                 child: Text(
                   '$courtName ($timeSlot)',
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -320,14 +434,27 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                 _buildInfoRow('Mã đơn:', booking['booking_code']),
                 _buildInfoRow('Khách hàng:', booking['customer_name']),
                 _buildInfoRow('Số điện thoại:', booking['customer_phone']),
-                _buildInfoRow('Khung giờ:', '${booking['start_time']} - ${booking['end_time']}'),
+                _buildInfoRow(
+                  'Khung giờ:',
+                  '${booking['start_time']} - ${booking['end_time']}',
+                ),
                 _buildInfoRow('Trạng thái:', booking['status'], isTag: true),
-                _buildInfoRow('Giá slot:', '${booking['price_slot'].toStringAsFixed(0)} VNĐ'),
-                _buildInfoRow('Tổng tiền:', '${booking['total_amount'].toStringAsFixed(0)} VNĐ'),
+                _buildInfoRow(
+                  'Giá slot:',
+                  '${booking['price_slot'].toStringAsFixed(0)} VNĐ',
+                ),
+                _buildInfoRow(
+                  'Tổng tiền:',
+                  '${booking['total_amount'].toStringAsFixed(0)} VNĐ',
+                ),
               ] else ...[
                 const Text(
                   'Trạng thái: Ô trống',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 15),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -352,13 +479,20 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.blue[700],
                       side: BorderSide(color: Colors.blue[400]!),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     icon: const Icon(Icons.swap_horiz, size: 16),
                     label: const Text('Chuyển sân'),
                     onPressed: () {
                       Navigator.pop(dialogContext);
-                      _showMoveSlotDialog(context, courtIndex, timeIndex, booking);
+                      _showMoveSlotDialog(
+                        context,
+                        courtIndex,
+                        timeIndex,
+                        booking,
+                      );
                     },
                   ),
                   const SizedBox(width: 8),
@@ -366,7 +500,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red[600],
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     icon: const Icon(Icons.delete_outline, size: 16),
                     label: const Text('Hủy sân'),
@@ -380,7 +516,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Đã hủy lịch đặt tại $courtName ($timeSlot) thành công!'),
+                          content: Text(
+                            'Đã hủy lịch đặt tại $courtName ($timeSlot) thành công!',
+                          ),
                           backgroundColor: Colors.red[600],
                         ),
                       );
@@ -393,7 +531,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D5C40),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 icon: const Icon(Icons.add_task, size: 18),
                 label: const Text('Chủ sân tự đặt sân'),
@@ -418,7 +558,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Đã giữ chỗ $courtName khung giờ $timeSlot!'),
+                      content: Text(
+                        'Đã giữ chỗ $courtName khung giờ $timeSlot!',
+                      ),
                       backgroundColor: Colors.green[700],
                     ),
                   );
@@ -446,26 +588,37 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               title: const Row(
                 children: [
                   Icon(Icons.swap_horiz, color: Colors.blue),
                   SizedBox(width: 8),
-                  Text('Chuyển / Đổi ca đánh', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Chuyển / Đổi ca đánh',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Chọn vị trí sân và khung giờ mới cần chuyển đến:', style: TextStyle(fontSize: 13)),
+                  const Text(
+                    'Chọn vị trí sân và khung giờ mới cần chuyển đến:',
+                    style: TextStyle(fontSize: 13),
+                  ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
                     initialValue: targetCourtIndex,
                     decoration: const InputDecoration(
                       labelText: 'Chọn sân mới',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     items: List.generate(
                       courts.length,
@@ -475,7 +628,8 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                       ),
                     ),
                     onChanged: (val) {
-                      if (val != null) setDialogState(() => targetCourtIndex = val);
+                      if (val != null)
+                        setDialogState(() => targetCourtIndex = val);
                     },
                   ),
                   const SizedBox(height: 12),
@@ -484,7 +638,10 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Chọn khung giờ mới',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     items: List.generate(
                       timeSlots.length,
@@ -494,7 +651,8 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                       ),
                     ),
                     onChanged: (val) {
-                      if (val != null) setDialogState(() => targetTimeIndex = val);
+                      if (val != null)
+                        setDialogState(() => targetTimeIndex = val);
                     },
                   ),
                 ],
@@ -502,7 +660,10 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(moveContext),
-                  child: const Text('Hủy bỏ', style: TextStyle(color: Colors.grey)),
+                  child: const Text(
+                    'Hủy bỏ',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -524,14 +685,20 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                         : newStart;
 
                     setState(() {
-                      var updatedCurrentBooking = Map<String, dynamic>.from(bookingData);
+                      var updatedCurrentBooking = Map<String, dynamic>.from(
+                        bookingData,
+                      );
                       updatedCurrentBooking['start_time'] = newStart;
                       updatedCurrentBooking['end_time'] = newEnd;
 
                       if (mockBookings.containsKey(newKey)) {
-                        var targetBooking = Map<String, dynamic>.from(mockBookings[newKey]!);
-                        targetBooking['start_time'] = timeSlots[currentTimeIndex];
-                        targetBooking['end_time'] = (currentTimeIndex + 1 < timeSlots.length)
+                        var targetBooking = Map<String, dynamic>.from(
+                          mockBookings[newKey]!,
+                        );
+                        targetBooking['start_time'] =
+                            timeSlots[currentTimeIndex];
+                        targetBooking['end_time'] =
+                            (currentTimeIndex + 1 < timeSlots.length)
                             ? timeSlots[currentTimeIndex + 1]
                             : timeSlots[currentTimeIndex];
 
