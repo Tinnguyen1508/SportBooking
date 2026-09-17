@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\build\\b8caeb08835590b6e17de9388a83bc1e",
+    "\\build\\windows",
+    "\\build\\windows\\x64",
+    "\\build\\windows\\x64\\plugins",
+    "\\build\\windows\\x64\\plugins\\file_selector_windows",
+    "\\lib",
+    "\\lib\\screens",
+    "\\lib\\screens\\test"
+  ],
+  "SelectedNode": "\\lib\\screens\\test\\admin_manage_courts_screen.dart",
+  "PreviewInSolutionExplorer": false
+}
