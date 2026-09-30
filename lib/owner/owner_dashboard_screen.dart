@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sportbooking/owner/owner_shop.dart';
+import 'package:sportbooking/owner/owner_stock.dart';
+
+// Import chính xác các màn hình bạn đã thiết kế
+import 'owner_manager.dart';    // Màn hình ma trận Xem trạng thái sân & Ca trống (Ảnh 13)
+import 'owner_branch.dart';     // Màn hình Quản lý Chi nhánh / Cụm sân (Ảnh 14)
+import 'owner_revenue.dart';    // Màn hình Báo cáo Doanh thu
+import 'owner_customers.dart';  // Màn hình Quản lý Khách hàng
+import 'owner_account.dart';    // Màn hình Tài khoản
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -8,245 +17,233 @@ class OwnerDashboardScreen extends StatefulWidget {
 }
 
 class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
-  // Tông màu chủ đạo (Xanh lá đậm)
   static const Color primaryColor = Color(0xFF0D5C40);
-  static const Color backgroundColor = Color(0xFFF8F9FA);
-
-  int _currentBottomIndex = 0;
+  int _currentBottomNavIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    // Lấy chiều rộng màn hình hiện tại
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1. THANH HEADER TRÊN CÙNG
-              _buildTopHeader(),
-
-              const SizedBox(height: 16),
-
-              // 2. BANNER THÔNG TIN CÂU LẠC BỘ
-              _buildClubBanner(),
-
-              const SizedBox(height: 20),
-
-              // 3. TIÊU ĐỀ MỤC QUẢN LÝ
-              const Text(
-                'Quản lý hệ thống',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // 4. LƯỚI CHỨC NĂNG (GRIDVIEW)
-              _buildDashboardGrid(),
-            ],
-          ),
-        ),
+      backgroundColor: const Color(0xFFF4F5F7),
+      appBar: AppBar(
+        title: const Text('ALOBO SPORT CLUB'),
+        backgroundColor: primaryColor,
+        centerTitle: true,
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
-
-      // 5. THANH MENU DƯỚI CÙNG (BOTTOM NAVIGATION BAR)
-      bottomNavigationBar: _buildBottomNavigationBar(),
-    );
-  }
-
-  // Header trên cùng (Tiêu đề + Thông báo + Profile)
-  Widget _buildTopHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Tổng quan hệ thống',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.notifications_none_rounded, color: Colors.black54),
-              onPressed: () {
-                _showToast('Chưa có thông báo mới');
-              },
-            ),
-            GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/owner-account'),
-              child: const CircleAvatar(
-                radius: 18,
-                backgroundColor: primaryColor,
-                child: Icon(Icons.person, color: Colors.white, size: 20),
-              ),
-            ),
-          ],
-        )
-      ],
-    );
-  }
-
-  // Banner Câu lạc bộ
-  Widget _buildClubBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: primaryColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.sports_tennis_rounded, color: primaryColor, size: 28),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
+      // Căn giữa toàn bộ nội dung để không bị kéo giãn tràn màn hình Web
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900), // Giới hạn chiều rộng chuẩn Web/Desktop
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'ALOBO SPORT CLUB',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // 1. THẺ BANNER CHÀO MỪNG
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.white24,
+                        child: Icon(Icons.person, color: Colors.white, size: 28),
+                      ),
+                      SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('ALOBO SPORT CLUB!',
+                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 2),
+                          Text('Hệ thống quản lý trung tâm thể thao ALOBO',
+                              style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Hệ thống quản lý trung tâm thể thao',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+
+                const SizedBox(height: 20),
+                const Text('Quản lý hệ thống', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+
+                // 2. LƯỚI CHỨC NĂNG (Responsive: 3 cột trên Web, 2 cột trên Mobile)
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: screenWidth > 600 ? 3 : 2, // Tự điều chỉnh cột theo kích thước màn hình
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: screenWidth > 600 ? 1.4 : 1.15,
+                  children: [
+                    // NÚT 1: XEM TRẠNG THÁI SÂN (Màn hình Ma trận Ca trống - Ảnh 13)
+                    _buildMenuCard(
+                      title: 'Xem trạng thái sân',
+                      subtitle: 'Sơ đồ & Ca trống',
+                      icon: Icons.grid_view_rounded,
+                      iconBgColor: Colors.orange.shade50,
+                      iconColor: Colors.deepOrange,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OwnerManagerScreen()),
+                        );
+                      },
+                    ),
+
+                    // NÚT 2: BÁN HÀNG TẠI QUẦY
+                    _buildMenuCard(
+                      title: 'Bán hàng tại quầy',
+                      subtitle: 'Tạo đơn & Check-in',
+                      icon: Icons.point_of_sale_rounded,
+                      iconBgColor: Colors.red.shade50,
+                      iconColor: Colors.redAccent,
+                      onTap: () {
+                       Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OwnerShopScreen()),
+                        );
+                      },
+
+                    ),
+
+                    // NÚT 3: KHO & DỊCH VỤ
+                    _buildMenuCard(
+                      title: 'Kho & dịch vụ',
+                      subtitle: 'Nước uống, dụng cụ',
+                      icon: Icons.inventory_2_rounded,
+                      iconBgColor: Colors.red.shade50,
+                      iconColor: Colors.red,
+                      onTap: () {},
+                    ),
+
+                    // NÚT 4: DOANH THU & BÁO CÁO (Màn hình Báo cáo Doanh thu)
+                    _buildMenuCard(
+                      title: 'Doanh thu & Báo cáo',
+                      subtitle: 'Tài chính',
+                      icon: Icons.bar_chart_rounded,
+                      iconBgColor: Colors.purple.shade50,
+                      iconColor: Colors.purple,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OwnerRevenueScreen()),
+                        );
+                      },
+                    ),
+
+                    // NÚT 5: QUẢN LÝ CHI NHÁNH (Màn hình Cụm sân - Ảnh 14)
+                    _buildMenuCard(
+                      title: 'Quản lý chi nhánh',
+                      subtitle: 'Cụm sân & Cơ sở',
+                      icon: Icons.storefront_rounded,
+                      iconBgColor: Colors.teal.shade50,
+                      iconColor: Colors.teal,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OwnerBranchScreen()),
+                        );
+                      },
+                    ),
+
+                    // NÚT 6: QUẢN LÝ KHÁCH HÀNG
+                    _buildMenuCard(
+                      title: 'Quản lý khách hàng',
+                      subtitle: 'Hội viên & Tích điểm',
+                      icon: Icons.group_rounded,
+                      iconBgColor: Colors.green.shade50,
+                      iconColor: Colors.green,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const OwnerCustomersScreen()),
+                        );
+                      },
+                    ),
+                    _buildMenuCard(
+                  title: 'Kho & dịch vụ',
+                    subtitle: 'Nước uống, dụng cụ',
+                    icon: Icons.inventory_2_rounded,
+                    iconBgColor: Colors.red.shade50,
+                    iconColor: Colors.red,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const OwnerStockScreen()),
+    );
+  },
+),
+                  ],
                 ),
               ],
             ),
           ),
+        ),
+      ),
+
+      // 3. BOTTOM NAVIGATION BAR
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentBottomNavIndex,
+        selectedItemColor: primaryColor,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        onTap: (index) {
+          setState(() {
+            _currentBottomNavIndex = index;
+          });
+          if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OwnerAccountScreen()),
+            );
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Trang chủ'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Lịch đặt'),
+          BottomNavigationBarItem(icon: Icon(Icons.verified_outlined), label: 'Duyệt đơn'),
+          BottomNavigationBarItem(icon: Icon(Icons.point_of_sale), label: 'Bán quầy & Kho'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Tài khoản'),
         ],
       ),
     );
   }
 
-  // Lưới chứa các ô chức năng chính
-  Widget _buildDashboardGrid() {
-    // Danh sách cấu hình các nút chức năng
-    final List<Map<String, dynamic>> menuItems = [
-      {
-        'title': 'Xem trạng thái sân',
-        'subtitle': 'Sơ đồ & Ca trống',
-        'icon': Icons.apps_rounded,
-        'iconBg': const Color(0xFFFFF3E0),
-        'iconColor': const Color(0xFFE65100),
-        'route': '/owner-manager',
-      },
-      {
-        'title': 'Bán hàng tại quầy',
-        'subtitle': 'Tạo đơn & Check-in',
-        'icon': Icons.point_of_sale_rounded,
-        'iconBg': const Color(0xFFFFEBEE),
-        'iconColor': const Color(0xFFC62828),
-        'route': '/owner-shop',
-      },
-      {
-        'title': 'Kho & dịch vụ',
-        'subtitle': 'Nước uống, dụng cụ',
-        'icon': Icons.inventory_2_rounded,
-        'iconBg': const Color(0xFFFFEBEE),
-        'iconColor': const Color(0xFFC62828),
-        'route': '/owner-shop',
-      },
-      {
-        'title': 'Doanh thu & Báo cáo',
-        'subtitle': 'Tài chính',
-        'icon': Icons.bar_chart_rounded,
-        'iconBg': const Color(0xFFFCE4EC),
-        'iconColor': const Color(0xFFAD1457),
-        'route': null, // Bổ sung sau
-      },
-      {
-        'title': 'Quản lý chi nhánh',
-        'subtitle': 'Cụm sân & Cơ sở',
-        'icon': Icons.storefront_rounded,
-        'iconBg': const Color(0xFFE0F2F1),
-        'iconColor': const Color(0xFF00695C),
-        'route': null, // Bổ sung sau
-      },
-      {
-        'title': 'Quản lý khách hàng',
-        'subtitle': 'Hội viên & Tích điểm',
-        'icon': Icons.groups_rounded,
-        'iconBg': const Color(0xFFE8F5E9),
-        'iconColor': const Color(0xFF2E7D32),
-        'route': '/owner-customers',
-      },
-    ];
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // Hiển thị 3 cột chuẩn như ảnh
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: menuItems.length,
-      itemBuilder: (context, index) {
-        final item = menuItems[index];
-        return _buildCardItem(
-          title: item['title'],
-          subtitle: item['subtitle'],
-          icon: item['icon'],
-          iconBg: item['iconBg'],
-          iconColor: item['iconColor'],
-          onTap: () {
-            if (item['route'] != null) {
-              // Chuyển sang màn hình mới
-              Navigator.pushNamed(context, item['route']);
-            } else {
-              _showToast('Chức năng "${item['title']}" đang phát triển');
-            }
-          },
-        );
-      },
-    );
-  }
-
-  // Widget Thẻ chi tiết của từng ô
-  Widget _buildCardItem({
+  // WIDGET BẢN MẪU THẺ NÚT CHỨC NĂNG
+  Widget _buildMenuCard({
     required String title,
     required String subtitle,
     required IconData icon,
-    required Color iconBg,
+    required Color iconBgColor,
     required Color iconColor,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: 0,
+    return Material(
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.withAlpha(30)),
-      ),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+        splashColor: primaryColor.withValues(alpha: 0.1),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -254,99 +251,28 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: iconBg,
+                  color: iconBgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: iconColor, size: 22),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: Colors.black87,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[600],
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 11),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Thanh điều hướng phía dưới
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: _currentBottomIndex,
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: primaryColor,
-      unselectedItemColor: Colors.grey,
-      selectedFontSize: 12,
-      unselectedFontSize: 12,
-      onTap: (index) {
-        setState(() => _currentBottomIndex = index);
-        switch (index) {
-          case 0:
-            // Đang ở Trang chủ
-            break;
-          case 1:
-            Navigator.pushNamed(context, '/owner-manager');
-            break;
-          case 2:
-            _showToast('Tính năng Duyệt đơn đang phát triển');
-            break;
-          case 3:
-            Navigator.pushNamed(context, '/owner-shop');
-            break;
-          case 4:
-            Navigator.pushNamed(context, '/owner-account');
-            break;
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          label: 'Trang chủ',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month_rounded),
-          label: 'Lịch đặt',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.verified_rounded),
-          label: 'Duyệt đơn',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.point_of_sale_rounded),
-          label: 'Bán quầy & Kho',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_rounded),
-          label: 'Tài khoản',
-        ),
-      ],
-    );
-  }
-
-  void _showToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
       ),
     );
   }

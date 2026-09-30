@@ -655,7 +655,7 @@ class _CourtFormSheetState extends State<_CourtFormSheet> {
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<int>(
-                          value: _selectedSportId,
+                          initialValue: _selectedSportId,
                           decoration: const InputDecoration(labelText: 'Bộ môn (sport_id)', border: OutlineInputBorder()),
                           items: widget.sports.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
                           onChanged: (val) => setState(() => _selectedSportId = val),
@@ -664,7 +664,7 @@ class _CourtFormSheetState extends State<_CourtFormSheet> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: DropdownButtonFormField<int>(
-                          value: _selectedDistrictId,
+                          initialValue: _selectedDistrictId,
                           decoration: const InputDecoration(labelText: 'Khu vực (district_id)', border: OutlineInputBorder()),
                           items: widget.districts.map((d) => DropdownMenuItem(value: d.id, child: Text(d.districtName))).toList(),
                           onChanged: (val) => setState(() => _selectedDistrictId = val),
@@ -763,7 +763,7 @@ class _CourtFormSheetState extends State<_CourtFormSheet> {
                   const SizedBox(height: 20),
                   const Text('4. Trạng thái hoạt động (status)', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
                   DropdownButtonFormField<String>(
-                    value: _status,
+                    initialValue: _status,
                     decoration: const InputDecoration(border: OutlineInputBorder()),
                     items: const [
                       DropdownMenuItem(value: 'PENDING', child: Text('PENDING (Chờ duyệt)')),
