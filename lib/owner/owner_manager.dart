@@ -628,8 +628,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                       ),
                     ),
                     onChanged: (val) {
-                      if (val != null)
+                      if (val != null) {
                         setDialogState(() => targetCourtIndex = val);
+                      }
                     },
                   ),
                   const SizedBox(height: 12),
@@ -651,8 +652,9 @@ class _OwnerManagerScreenState extends State<OwnerManagerScreen> {
                       ),
                     ),
                     onChanged: (val) {
-                      if (val != null)
+                      if (val != null) {
                         setDialogState(() => targetTimeIndex = val);
+                      }
                     },
                   ),
                 ],

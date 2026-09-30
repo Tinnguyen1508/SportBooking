@@ -95,11 +95,15 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
   // Lọc danh sách khách hàng
   List<Customer> get _filteredCustomers {
     return _allCustomers.where((customer) {
-      final matchesSearch = customer.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+      final matchesSearch =
+          customer.fullName.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ||
           customer.phone.contains(_searchQuery) ||
           customer.email.toLowerCase().contains(_searchQuery.toLowerCase());
-      
-      final matchesTier = _selectedTier == 'Tất cả' || customer.tier == _selectedTier;
+
+      final matchesTier =
+          _selectedTier == 'Tất cả' || customer.tier == _selectedTier;
 
       return matchesSearch && matchesTier;
     }).toList();
@@ -112,7 +116,11 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
       appBar: AppBar(
         title: const Text(
           'Quản lý khách hàng',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -120,11 +128,14 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
         iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_add_alt_1_rounded, color: primaryColor),
+            icon: const Icon(
+              Icons.person_add_alt_1_rounded,
+              color: primaryColor,
+            ),
             onPressed: () {
               // Thêm khách hàng thủ công
             },
-          )
+          ),
         ],
       ),
       body: Column(
@@ -142,17 +153,27 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person_search_rounded, size: 64, color: Colors.grey[400]),
+                        Icon(
+                          Icons.person_search_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'Không tìm thấy khách hàng phù hợp',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     itemCount: _filteredCustomers.length,
                     itemBuilder: (context, index) {
                       final customer = _filteredCustomers[index];
@@ -168,7 +189,9 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
   // Widget Thống kê tổng quan
   Widget _buildOverviewMetrics() {
     final totalCustomers = _allCustomers.length;
-    final vipCustomers = _allCustomers.where((c) => c.tier == 'Kim Cương' || c.tier == 'Vàng').length;
+    final vipCustomers = _allCustomers
+        .where((c) => c.tier == 'Kim Cương' || c.tier == 'Vàng')
+        .length;
 
     return Container(
       color: Colors.white,
@@ -197,7 +220,12 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
     );
   }
 
-  Widget _buildMetricItem(String title, String value, IconData icon, Color color) {
+  Widget _buildMetricItem(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -223,7 +251,11 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ],
           ),
@@ -246,7 +278,11 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
             decoration: InputDecoration(
               hintText: 'Tìm theo tên, SĐT hoặc email...',
               hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
-              prefixIcon: const Icon(Icons.search_rounded, size: 20, color: Colors.grey),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 20,
+                color: Colors.grey,
+              ),
               filled: true,
               fillColor: backgroundColor,
               contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -272,7 +308,9 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   selected: isSelected,
@@ -322,7 +360,11 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                   backgroundColor: primaryColor.withValues(alpha: 0.1),
                   child: Text(
                     customer.fullName.substring(0, 1).toUpperCase(),
-                    style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -336,7 +378,10 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                         children: [
                           Text(
                             customer.fullName,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           _buildTierBadge(customer.tier),
@@ -352,13 +397,21 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                       const SizedBox(height: 6),
                       Text(
                         'Đã đặt: ${customer.totalBookings} lượt  |  Chi tiêu: ${_formatCurrency(customer.totalSpent)}',
-                        style: const TextStyle(fontSize: 11, color: primaryColor, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.grey,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -395,7 +448,11 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
       ),
       child: Text(
         tier,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: badgeColor),
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: badgeColor,
+        ),
       ),
     );
   }
@@ -433,37 +490,64 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                     backgroundColor: primaryColor,
                     child: Text(
                       customer.fullName.substring(0, 1).toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(customer.fullName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(
+                        customer.fullName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 4),
                       _buildTierBadge(customer.tier),
                     ],
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
               const Divider(),
               _buildDetailRow(Icons.phone, 'Số điện thoại', customer.phone),
               _buildDetailRow(Icons.email, 'Email', customer.email),
-              _buildDetailRow(Icons.calendar_today, 'Ngày tham gia', '${customer.createdAt.day}/${customer.createdAt.month}/${customer.createdAt.year}'),
-              _buildDetailRow(Icons.confirmation_number, 'Tổng lượt đặt sân', '${customer.totalBookings} lượt'),
-              _buildDetailRow(Icons.payments, 'Tổng tiền đã thanh toán', _formatCurrency(customer.totalSpent)),
+              _buildDetailRow(
+                Icons.calendar_today,
+                'Ngày tham gia',
+                '${customer.createdAt.day}/${customer.createdAt.month}/${customer.createdAt.year}',
+              ),
+              _buildDetailRow(
+                Icons.confirmation_number,
+                'Tổng lượt đặt sân',
+                '${customer.totalBookings} lượt',
+              ),
+              _buildDetailRow(
+                Icons.payments,
+                'Tổng tiền đã thanh toán',
+                _formatCurrency(customer.totalSpent),
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.phone, color: primaryColor),
-                      label: const Text('Gọi điện', style: TextStyle(color: primaryColor)),
+                      label: const Text(
+                        'Gọi điện',
+                        style: TextStyle(color: primaryColor),
+                      ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: primaryColor),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       onPressed: () {},
                     ),
@@ -472,16 +556,21 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.history, color: Colors.white),
-                      label: const Text('Lịch sử đặt', style: TextStyle(color: Colors.white)),
+                      label: const Text(
+                        'Lịch sử đặt',
+                        style: TextStyle(color: Colors.white),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       onPressed: () {},
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         );
@@ -498,7 +587,10 @@ class _OwnerCustomersScreenState extends State<OwnerCustomersScreen> {
           const SizedBox(width: 12),
           Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
           const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
         ],
       ),
     );
