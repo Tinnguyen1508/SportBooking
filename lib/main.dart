@@ -2,10 +2,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 // Import các màn hình Chủ sân
-import 'owner/owner_account.dart'; // Đã thêm: Import màn hình Tài khoản
+import 'owner/owner_account.dart';
+import 'owner/owner_customers.dart'; // Đã thêm: Import màn hình Quản lý khách hàng
 import 'owner/owner_dashboard_screen.dart';
 import 'owner/owner_manager.dart';
-import 'owner/owner_shop.dart'; // Import màn hình Bán hàng tại quầy & Kho
+import 'owner/owner_shop.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/payment_screen.dart';
@@ -45,8 +46,9 @@ class MyApp extends StatelessWidget {
         '/review': (context) => const ReviewScreen(),
         '/owner-dashboard': (context) => const OwnerDashboardScreen(),
         '/owner-manager': (context) => const OwnerManagerScreen(),
-        '/owner-shop': (context) => const OwnerShopScreen(), // Route màn hình Bán hàng
-        '/owner-account': (context) => const OwnerAccountScreen(), // Đã thêm: Route màn hình Tài khoản
+        '/owner-shop': (context) => const OwnerShopScreen(),
+        '/owner-account': (context) => const OwnerAccountScreen(),
+        '/owner-customers': (context) => const OwnerCustomersScreen(), // Đã thêm: Route màn hình Quản lý khách hàng
       },
     );
   }

@@ -25,3 +25,12 @@ flutter:
 
   assets:
     - assets/images/
+
+dependencies:
+  flutter:
+    sdk: flutter
+  image_picker: ^1.1.2 # Thêm dòng này   
+dependencies:
+  flutter:
+    sdk: flutter
+  file_picker: ^8.0.0 # Thêm gói này vào pubspec.yaml
