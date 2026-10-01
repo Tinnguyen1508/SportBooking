@@ -383,9 +383,13 @@ class _OwnerStockScreenState extends State<OwnerStockScreen> {
     );
   }
 
-  String _formatPrice(double price) {
-    return '${price.toInt().toString().replaceAllRegExp(r'\B(?=(\d{3})+(?!\d))', '.')}đ';
-  }
+  1String _formatPrice(double price) {
+  final formatted = price.toInt().toString().replaceAllMapped(
+        RegExp(r'\B(?=(\d{3})+(?!\d))'),
+        (match) => '.',
+      );
+  return '$formattedđ';
+}
 }
 
 extension RegExpExtension on String {
