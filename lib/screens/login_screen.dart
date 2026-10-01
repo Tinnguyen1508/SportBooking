@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Thư viện gọi API
-
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
+import '../services/auth_service.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -16,75 +16,78 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Đổi tên controller để phản ánh việc có thể nhập SĐT hoặc Email
+  // Có thể nhập SĐT hoặc Email
   final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
+  // Đọc vai trò: ưu tiên field backend trả về, nếu không có thì đọc trong JWT
+  String? _extractRole(Map<String, dynamic> data) {
+    final user = data['user'];
+    if (user is Map && user['role'] != null) return user['role'].toString();
+    if (data['role'] != null) return data['role'].toString();
+
+    try {
+      final parts = (data['token'] ?? '').toString().split('.');
+      if (parts.length == 3) {
+        final payload = jsonDecode(
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+        );
+        if (payload is Map && payload['role'] != null) {
+          return payload['role'].toString();
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  void _showMessage(String text, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor: isError ? Colors.red : null,
+      ),
+    );
+  }
+
   // ==============================
   // Xử lý đăng nhập bằng SĐT hoặc Email
   // ==============================
   Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final emailOrPhone = _emailOrPhoneController.text.trim();
-      final password = _passwordController.text;
+    if (!_formKey.currentState!.validate()) return;
 
-      try {
-        // ⚠️ LƯU Ý ĐỊA CHỈ URL:
-        // - Nếu chạy máy ảo Android (Emulator): Dùng 'http://10.0.2.2:5000/api/auth/login'
-        // - Nếu chạy máy điện thoại thật (cùng Wi-Fi): Dùng IP LAN máy tính của bạn (VD: 'http://192.168.1.X:5000/api/auth/login')
-        final url = Uri.parse('http://localhost:5000/api/auth/login');
+    // AuthService.login tự lưu token vào SharedPreferences (key 'userToken')
+    // và tự chọn địa chỉ server theo nền tảng (Web / Windows / Android)
+    final data = await AuthService.login(
+      emailOrPhone: _emailOrPhoneController.text.trim(),
+      password: _passwordController.text,
+    );
+    if (!mounted) return;
 
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'emailOrPhone': emailOrPhone,
-            'password': password,
-          }),
-        );
+    if (data['success'] != true) {
+      _showMessage(
+        data['message'] ?? 'Tài khoản hoặc mật khẩu không chính xác!',
+        isError: true,
+      );
+      return;
+    }
 
-        final responseData = jsonDecode(response.body);
+    _showMessage(data['message'] ?? 'Đăng nhập thành công!');
 
-        if (!mounted) return;
-
-        if (response.statusCode == 200 && responseData['success'] == true) {
-          // Đăng nhập thành công -> Thông báo và lấy Token
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(responseData['message'] ?? 'Đăng nhập thành công!'),
-            ),
-          );
-
-          final token = responseData['token'];
-          // TODO: Lưu token này lại bằng SharedPreferences nếu cần dùng cho các màn hình sau
-          print('Token nhận được: $token');
-
-          // Ví dụ chuyển hướng sang màn hình chính (nếu có):
-          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-        } else {
-          // Đăng nhập thất bại (sai tài khoản hoặc mật khẩu do Backend trả về)
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                responseData['message'] ??
-                    'Tài khoản hoặc mật khẩu không chính xác!',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        // Lỗi kết nối mạng hoặc server Node.js chưa bật
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Không thể kết nối đến máy chủ: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    final role = _extractRole(data)?.toUpperCase();
+    if (role == 'OWNER') {
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else if (role == null) {
+      _showMessage(
+        'Đăng nhập thành công nhưng không đọc được vai trò. Kiểm tra dữ liệu /api/auth/login trả về.',
+        isError: true,
+      );
+    } else {
+      _showMessage(
+        'Tài khoản khách hàng chưa có màn hình trong ứng dụng này.',
+        isError: true,
+      );
     }
   }
 
@@ -100,9 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SizedBox.expand(
         child: Container(
-          // ==========================================
           // BACKGROUND
-          // ==========================================
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/login_background.jpg'),
@@ -110,12 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          // ==========================================
           // LỚP PHỦ MỜ
-          // ==========================================
           child: Container(
-           color: Colors.white.withValues(alpha: 0.85),
-
+            color: Colors.white.withValues(alpha: 0.85),
             child: SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -123,25 +121,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   vertical: 30,
                 ),
 
-                // ==========================================
                 // GIỚI HẠN CHIỀU RỘNG FORM
-                // ==========================================
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 450),
-
                     child: Form(
                       key: _formKey,
-
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-
                         children: [
-                          // ==================================
-                          // TIÊU ĐỀ
-                          // ==================================
                           const SizedBox(height: 20),
 
+                          // TIÊU ĐỀ
                           const Text(
                             'Đăng Nhập',
                             textAlign: TextAlign.center,
@@ -153,33 +144,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 35),
 
-                          // ==================================
                           // SỐ ĐIỆN THOẠI HOẶC EMAIL
-                          // ==================================
                           TextFormField(
                             controller: _emailOrPhoneController,
                             keyboardType: TextInputType.text,
-
                             decoration: InputDecoration(
                               labelText: 'Số điện thoại hoặc Email',
                               hintText: 'Nhập SĐT hoặc Email của bạn',
-
                               prefixIcon: const Icon(Icons.person_outline),
-
                               filled: true,
                               fillColor: Colors.white,
-
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
                                   color: Colors.grey,
                                 ),
                               ),
-
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
@@ -188,7 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Vui lòng nhập số điện thoại hoặc email';
@@ -196,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                               final input = value.trim();
 
-                              // Kiểm tra xem user nhập vào là SĐT hay Email hợp lệ không
+                              // Kiểm tra SĐT hoặc Email hợp lệ
                               final isPhone = RegExp(
                                 r'^(0|\+84)[3|5|7|8|9][0-9]{8}$',
                               ).hasMatch(input);
@@ -214,19 +196,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 18),
 
-                          // ==================================
                           // MẬT KHẨU
-                          // ==================================
                           TextFormField(
                             controller: _passwordController,
                             obscureText: !_isPasswordVisible,
-
                             decoration: InputDecoration(
                               labelText: 'Mật khẩu',
                               hintText: 'Nhập mật khẩu',
-
                               prefixIcon: const Icon(Icons.lock_outline),
-
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isPasswordVisible
@@ -239,21 +216,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   });
                                 },
                               ),
-
                               filled: true,
                               fillColor: Colors.white,
-
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
                                   color: Colors.grey,
                                 ),
                               ),
-
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
@@ -262,7 +235,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
-
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Vui lòng nhập mật khẩu';
@@ -276,9 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
 
-                          // ==================================
                           // QUÊN MẬT KHẨU
-                          // ==================================
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
@@ -297,20 +267,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 8),
 
-                          // ==================================
                           // NÚT ĐĂNG NHẬP
-                          // ==================================
                           SizedBox(
                             height: 50,
                             child: ElevatedButton(
                               onPressed: _handleLogin,
-
                               style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-
                               child: const Text(
                                 'Đăng nhập',
                                 style: TextStyle(
@@ -323,9 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 30),
 
-                          // ==================================
                           // ĐĂNG KÝ
-                          // ==================================
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

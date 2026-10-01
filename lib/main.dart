@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:sportbooking/owner/owner_approval.dart';
 
 // Import các màn hình chính trong hệ thống
 import 'owner/owner_dashboard_screen.dart';
 import 'owner/owner_stock.dart';
-import 'owner/owner_manager.dart';
+import 'owner/owner_manager.dart'; // có sẵn AppScrollBehavior (kéo chuột trên Web/Desktop)
 import 'owner/owner_branch.dart';
 import 'owner/owner_revenue.dart';
 import 'owner/owner_customers.dart';
+import 'owner/owner_approval.dart'; // MỚI: Duyệt đơn
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -15,6 +17,7 @@ import 'screens/payment_screen.dart';
 import 'screens/review_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const SportBookingApp());
 }
 
@@ -35,6 +38,9 @@ class SportBookingApp extends StatelessWidget {
         fontFamily: 'Roboto',
       ),
 
+      // Cho phép kéo thả bằng chuột trên toàn app (Flutter Web / Desktop)
+      scrollBehavior: AppScrollBehavior(),
+
       // Màn hình khởi chạy ban đầu: Đăng nhập
       initialRoute: '/',
       routes: {
@@ -51,6 +57,7 @@ class SportBookingApp extends StatelessWidget {
         '/branch': (context) => const OwnerBranchScreen(),
         '/revenue': (context) => const OwnerRevenueScreen(),
         '/customers': (context) => const OwnerCustomersScreen(),
+        '/approval': (context) => const  OwnerApprovalScreen(), // MỚI: Duyệt đơn
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/otp-verify') {
@@ -62,6 +69,9 @@ class SportBookingApp extends StatelessWidget {
         }
         return null;
       },
+      // Route không tồn tại -> quay về đăng nhập thay vì màn hình đỏ
+      onUnknownRoute: (settings) =>
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 }

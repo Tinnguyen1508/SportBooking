@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend Node (sports_backend)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/sports_backend/server.js",
+      "cwd": "${workspaceFolder}/sports_backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Flutter Web (Chrome)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "chrome"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Backend + Flutter",
+      "configurations": ["Backend Node (sports_backend)", "Flutter Web (Chrome)"],
+      "stopAll": true
+    }
+  ]
+}
