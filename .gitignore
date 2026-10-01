@@ -46,3 +46,10 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+# Backend (Node.js)
+sports_backend/node_modules/
+sports_backend/.env
+
+# Android build output (file tự sinh, hay gây xung đột)
+android/build/
+android/.gradle/
