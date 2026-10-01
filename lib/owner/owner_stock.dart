@@ -383,7 +383,7 @@ class _OwnerStockScreenState extends State<OwnerStockScreen> {
     );
   }
 
-  1String _formatPrice(double price) {
+  String _formatPrice(double price) {
   final formatted = price.toInt().toString().replaceAllMapped(
         RegExp(r'\B(?=(\d{3})+(?!\d))'),
         (match) => '.',

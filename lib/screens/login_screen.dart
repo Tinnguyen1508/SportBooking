@@ -27,12 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
   // ==============================
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-<<<<<<< HEAD
       final emailOrPhone = _emailOrPhoneController.text.trim();
       final password = _passwordController.text;
-=======
-      
->>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
 
       try {
         // ⚠️ LƯU Ý ĐỊA CHỈ URL:
@@ -92,19 +88,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-<<<<<<< HEAD
-=======
-  // ==============================
-  // Xử lý đăng nhập Google
-  // ==============================
-  void _handleGoogleLogin() {
-    
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Đăng nhập bằng Google')));
-  }
-
->>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
   @override
   void dispose() {
     _emailOrPhoneController.dispose();
@@ -300,7 +283,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-<<<<<<< HEAD
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -308,9 +290,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         const ForgotPasswordScreen(),
                                   ),
                                 );
-=======
-                               
->>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                               },
                               child: const Text('Quên mật khẩu?'),
                             ),

@@ -8,16 +8,7 @@ class OwnerAccountScreen extends StatefulWidget {
 }
 
 class _OwnerAccountScreenState extends State<OwnerAccountScreen> {
-<<<<<<< Updated upstream
   static const Color primaryColor = Color(0xFF0D5C40);
-=======
-  // Thông tin tài khoản Admin / Owner
-  String fullName = 'Trần Huy Hoàng';
-  String phoneNumber = '0905682143';
-  String email = 'admin@alobadminton.com';
-  String role = 'Chủ sân';
-  int favoriteCount = 0;
->>>>>>> Stashed changes
 
   final String _fullName = 'Trần Huy Hoàng';
   final String _phone = '0905682143';
