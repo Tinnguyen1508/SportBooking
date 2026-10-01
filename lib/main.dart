@@ -8,6 +8,12 @@ import 'owner/owner_branch.dart';
 import 'owner/owner_revenue.dart';
 import 'owner/owner_customers.dart';
 
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/register_otp_screen.dart'; // Màn hình OTP dành riêng cho đăng ký
+import 'screens/payment_screen.dart';
+import 'screens/review_screen.dart';
+
 void main() {
   runApp(const SportBookingApp());
 }
@@ -28,17 +34,33 @@ class SportBookingApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      // Màn hình khởi chạy ban đầu: Dashboard
-      home: const OwnerDashboardScreen(),
 
-      // Định nghĩa các Route dễ dàng điều hướng
+      // Màn hình khởi chạy ban đầu: Đăng nhập
+      initialRoute: '/',
       routes: {
+        '/': (context) => const LoginScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/payment': (context) => const PaymentScreen(),
+        '/review': (context) => const ReviewScreen(),
+
+        // Các màn hình chủ sân
         '/dashboard': (context) => const OwnerDashboardScreen(),
         '/stock': (context) => const OwnerStockScreen(),
         '/manager': (context) => const OwnerManagerScreen(),
         '/branch': (context) => const OwnerBranchScreen(),
         '/revenue': (context) => const OwnerRevenueScreen(),
         '/customers': (context) => const OwnerCustomersScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/otp-verify') {
+          return MaterialPageRoute(
+            builder: (context) => const RegisterOtpScreen(),
+            // Phải truyền settings để màn hình OTP nhận được arguments
+            settings: settings,
+          );
+        }
+        return null;
       },
     );
   }

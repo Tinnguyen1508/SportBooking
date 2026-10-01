@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -24,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController =
       TextEditingController();
@@ -39,6 +42,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
+<<<<<<< HEAD
+  // ==========================================
+  // XỬ LÝ ĐĂNG KÝ & GỬI OTP
+  // ==========================================
+  void _handleRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final phone = _phoneController.text.trim();
+
+    // 1. Hiển thị Loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // 2. Gọi API Gửi OTP từ AuthService
+    final result = await AuthService.sendRegisterOtp(
+      fullName: _nameController.text.trim(),
+      phone: phone,
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      role: _accountType,
+    );
+
+    // Tắt Loading
+    if (mounted) Navigator.pop(context);
+
+    // 3. Xử lý kết quả trả về
+    if (result['success'] == true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Đã gửi mã OTP xác thực đến số điện thoại!'),
+          ),
+        );
+
+        // Chuyển sang màn hình OTP và TRUYỀN ĐẦY ĐỦ THÔNG TIN ĐĂNG KÝ
+        Navigator.pushNamed(
+          context,
+          '/otp-verify',
+          arguments: {
+            'fullName': _nameController.text.trim(),
+            'phone': phone,
+            'email': _emailController.text.trim(),
+            'password': _passwordController.text.trim(),
+            'role': _accountType,
+          },
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Lỗi: ${result['message'] ?? 'Không thể gửi OTP'}'),
+          ),
+        );
+      }
+=======
   // =========================================================
   // XỬ LÝ ĐĂNG KÝ
   // =========================================================
@@ -55,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.green,
         ),
       );
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
     }
   }
 
@@ -65,15 +128,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-
     super.dispose();
   }
 
+<<<<<<< HEAD
+=======
   // =========================================================
   // STYLE CHUNG CHO Ô NHẬP
   // =========================================================
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
   InputDecoration _inputDecoration({
     required String hint,
     required IconData icon,
@@ -81,6 +147,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return InputDecoration(
       hintText: hint,
+<<<<<<< HEAD
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+=======
 
       hintStyle: const TextStyle(
         color: greyText,
@@ -106,6 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderRadius: BorderRadius.circular(14),
       ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
@@ -113,7 +186,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           width: 1.2,
         ),
       ),
-
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
@@ -147,9 +219,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: SizedBox.expand(
         child: Container(
+<<<<<<< HEAD
+=======
           // =================================================
           // ẢNH BACKGROUND
           // =================================================
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
@@ -158,6 +233,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               fit: BoxFit.cover,
             ),
           ),
+<<<<<<< HEAD
+          child: Container(
+            color: Colors.white.withOpacity(0.85),
+=======
 
           // =================================================
           // LỚP PHỦ TRẮNG
@@ -170,23 +249,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
               0.93,
             ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
             child: SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 20,
                 ),
-
                 child: Center(
                   child: ConstrainedBox(
+<<<<<<< HEAD
+                    constraints: const BoxConstraints(maxWidth: 450),
+=======
                     constraints: const BoxConstraints(
                       maxWidth: 430,
                     ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                     child: Form(
                       key: _formKey,
-
                       child: Column(
+<<<<<<< HEAD
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 10),
+=======
                         crossAxisAlignment:
                             CrossAxisAlignment.stretch,
 
@@ -243,6 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           // ===================================
                           // TIÊU ĐỀ
                           // ===================================
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                           const Text(
                             'Tạo tài khoản',
 
@@ -254,9 +342,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: textColor,
                             ),
                           ),
-
                           const SizedBox(height: 8),
-
                           const Text(
                             'Đăng ký để bắt đầu đặt sân',
 
@@ -267,6 +353,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               color: greyText,
                             ),
                           ),
+<<<<<<< HEAD
+                          const SizedBox(height: 30),
+
+                          // HỌ VÀ TÊN
+                          TextFormField(
+                            controller: _nameController,
+=======
 
                           const SizedBox(height: 32),
 
@@ -279,27 +372,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             textInputAction:
                                 TextInputAction.next,
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                             decoration: _inputDecoration(
                               hint: 'Họ và tên',
                               icon: Icons.person_outline,
                             ),
-
                             validator: (value) {
                               if (value == null ||
                                   value.trim().isEmpty) {
                                 return 'Vui lòng nhập họ và tên';
                               }
-
                               if (value.trim().length < 2) {
                                 return 'Họ và tên không hợp lệ';
                               }
-
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 18),
 
+<<<<<<< HEAD
+                          // SỐ ĐIỆN THOẠI
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+=======
                           // ===================================
                           // SỐ ĐIỆN THOẠI
                           // ===================================
@@ -312,16 +408,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             textInputAction:
                                 TextInputAction.next,
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                             decoration: _inputDecoration(
                               hint: 'Số điện thoại',
                               icon: Icons.phone_android,
                             ),
-
                             validator: (value) {
                               if (value == null ||
                                   value.trim().isEmpty) {
                                 return 'Vui lòng nhập số điện thoại';
                               }
+<<<<<<< HEAD
+                              if (!RegExp(r'^(0|\+84)[3|5|7|8|9][0-9]{8}$')
+                                  .hasMatch(value)) {
+=======
 
                               final phone =
                                   value.trim();
@@ -329,27 +429,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               if (!RegExp(
                                 r'^(0|\+84)[35789][0-9]{8}$',
                               ).hasMatch(phone)) {
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                                 return 'Số điện thoại không hợp lệ';
                               }
-
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 18),
 
+<<<<<<< HEAD
+                          // EMAIL
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: _inputDecoration(
+                              label: 'Email',
+                              hint: 'Nhập địa chỉ email',
+                              icon: Icons.email_outlined,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return null; // Cho phép để trống nếu không bắt buộc
+                              }
+                              bool emailValid = RegExp(
+                                r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+                              ).hasMatch(value.trim());
+                              if (!emailValid) {
+                                return 'Email không đúng định dạng';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+=======
                           // ===================================
                           // LOẠI TÀI KHOẢN
                           // ===================================
                           DropdownButtonFormField<String>(
                             initialValue: _accountType,
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
 
+                          // LOẠI TÀI KHOẢN
+                          DropdownButtonFormField<String>(
+                            value: _accountType,
                             decoration: _inputDecoration(
                               hint: 'Loại tài khoản',
                               icon: Icons
                                   .account_circle_outlined,
                             ),
-
                             items: const [
                               DropdownMenuItem(
                                 value: 'Người chơi',
@@ -365,7 +492,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                             ],
-
                             onChanged: (value) {
                               if (value != null) {
                                 setState(() {
@@ -374,9 +500,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               }
                             },
                           ),
-
                           const SizedBox(height: 18),
 
+<<<<<<< HEAD
+                          // MẬT KHẨU
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: !_isPasswordVisible,
+                            decoration:
+                                _inputDecoration(
+                                  label: 'Mật khẩu',
+                                  hint: 'Nhập mật khẩu',
+                                  icon: Icons.lock_outline,
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isPasswordVisible =
+                                            !_isPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
+=======
                           // ===================================
                           // MẬT KHẨU
                           // ===================================
@@ -414,22 +565,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                             validator: (value) {
                               if (value == null ||
                                   value.isEmpty) {
                                 return 'Vui lòng nhập mật khẩu';
                               }
-
                               if (value.length < 6) {
                                 return 'Mật khẩu phải từ 6 ký tự';
                               }
-
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 18),
 
+<<<<<<< HEAD
+                          // NHẬP LẠI MẬT KHẨU
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: !_isConfirmPasswordVisible,
+                            decoration:
+                                _inputDecoration(
+                                  label: 'Nhập lại mật khẩu',
+                                  hint: 'Nhập lại mật khẩu',
+                                  icon: Icons.lock_reset_outlined,
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isConfirmPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isConfirmPasswordVisible =
+                                            !_isConfirmPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
+=======
                           // ===================================
                           // NHẬP LẠI MẬT KHẨU
                           // ===================================
@@ -473,23 +648,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                             validator: (value) {
                               if (value == null ||
                                   value.isEmpty) {
                                 return 'Vui lòng nhập lại mật khẩu';
                               }
+<<<<<<< HEAD
+                              if (value != _passwordController.text) {
+=======
 
                               if (value !=
                                   _passwordController.text) {
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                                 return 'Mật khẩu không khớp';
                               }
-
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 28),
 
+<<<<<<< HEAD
+                          // NÚT ĐĂNG KÝ
+                          SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _handleRegister,
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+=======
                           // ===================================
                           // NÚT ĐĂNG KÝ
                           // ===================================
@@ -515,9 +703,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       BorderRadius.circular(
                                     14,
                                   ),
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                                 ),
                               ),
-
                               child: const Text(
                                 'Đăng ký',
 
@@ -530,9 +718,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 20),
 
+<<<<<<< HEAD
+                          // QUAY LẠI ĐĂNG NHẬP
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Đã có tài khoản? '),
+=======
                           // ===================================
                           // ĐÃ CÓ TÀI KHOẢN
                           // ===================================
@@ -549,11 +743,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
 
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-
                                 child: const Text(
                                   'Đăng nhập',
 
@@ -567,8 +761,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
                           ),
+<<<<<<< HEAD
+                          const SizedBox(height: 15),
+=======
 
                           const SizedBox(height: 20),
+>>>>>>> 492b1911d44a4736fbc1b4f370bbddcb316c8986
                         ],
                       ),
                     ),
